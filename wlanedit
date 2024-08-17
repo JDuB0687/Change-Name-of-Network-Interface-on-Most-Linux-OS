@@ -1,0 +1,61 @@
+Note: The following should be done as root or at least add sudo before each command.
+Note: Specific Hardware Used: AR9271 USB WiFi Adapter w/ Orange Pi Zero 3 1GB.
+
+I had an annoying problem where the default name for my external usb wifi adapter was wlx89084t9001i or something similar.  
+I was using it for network pentesting with my Orange Pi Zero 3.  
+It's super annoying to type in wlx273857837583554875768... you get the gist.
+It took a few hours to figure it out but here's how you do it.
+
+1. Find the internet adapter's MAC Address with ifconfig, ip a, or a similar method.
+
+      root@orangepizero3:~# ifconfig
+
+wlx89084t9001i: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        ether a1:b2:c3:d4:e5:g6  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+2. cd to /etc/udev/rules.d/
+
+      root@orangepizero3:~# cd /etc/udev/rules.d/
+
+3. Find or create file 70-persistent-net.rules root@orangepizero3:~# 
+
+      nano 70-persistent-net.rules
+
+4. Copy this into the open file. ------> 
+
+      # Modify ATTR{address} with MAC of the network interface and NAME paramter with the new desired name. 
+
+        SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="a1:b2:c3:d4:e5:g6", NAME="wlan123"
+                                                           "change this"     "change this"
+
+5. Add as many lines for as many adapters that you want to change. Just copy and paste your MAC Address and Name it. If you cat it out after it should look like this but with your info.
+
+      root@orangepizero3:/etc/udev/rules.d# cat 70-persistent-net.rules 
+
+      # Modify ATTR{address} with MAC of the network interface and NAME paramter with the new desired name. 
+
+        SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="a1:b2:c3:d4:e5:g6", NAME="wlan123"
+
+6. Reboot and ifconfig to view new permanent name (until you delete file or change it again)
+
+      root@orangepizero3:~# reboot
+
+      root@orangepizero3:~# ifconfig
+
+        wlan123: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+                ether a1:b2:c3:d4:e5:g6  txqueuelen 1000  (Ethernet)
+                RX packets 0  bytes 0 (0.0 B)
+                RX errors 0  dropped 0  overruns 0  frame 0
+                TX packets 0  bytes 0 (0.0 B)
+                TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+
+
+
+
+
+
